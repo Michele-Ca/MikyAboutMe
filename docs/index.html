@@ -1,963 +1,2623 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Michele — Viaggiatore, Sognatore, Creatore</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MICHELE — A WORLD IN MOTION</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+
 <style>
-    /* ============================================
-       RESET & BASE
-       ============================================ */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html {
-        scroll-behavior: smooth;
-        overflow-x: hidden;
-    }
-
-    body {
-        background: #0A0A0A;
-        color: #FFFFFF;
-        font-family: 'Inter', sans-serif;
-        overflow-x: hidden;
-        cursor: none;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* ============================================
-       CUSTOM CURSOR (stile Lando Norris)
-       ============================================ */
-    .cursor-dot, .cursor-ring {
-        position: fixed;
-        top: 0; left: 0;
-        pointer-events: none;
-        z-index: 99999;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        mix-blend-mode: difference;
-    }
-
-    .cursor-dot {
-        width: 8px; height: 8px;
-        background: #FFFFFF;
-        transition: width 0.3s cubic-bezier(0.16,1,0.3,1),
-                    height 0.3s cubic-bezier(0.16,1,0.3,1),
-                    background 0.3s;
-    }
-
-    .cursor-ring {
-        width: 44px; height: 44px;
-        border: 1px solid rgba(255,255,255,0.4);
-        transition: width 0.4s cubic-bezier(0.16,1,0.3,1),
-                    height 0.4s cubic-bezier(0.16,1,0.3,1),
-                    border-color 0.4s, background 0.4s;
-    }
-
-    body.cursor-hover .cursor-dot {
-        width: 0; height: 0;
-    }
-
-    body.cursor-hover .cursor-ring {
-        width: 90px; height: 90px;
-        background: #FFFFFF;
-        border-color: #FFFFFF;
-    }
-
-    /* ============================================
-       NOISE OVERLAY (film grain)
-       ============================================ */
-    .noise {
-        position: fixed;
-        inset: 0;
-        z-index: 1000;
-        pointer-events: none;
-        opacity: 0.045;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E");
-    }
-
-    /* ============================================
-       PROGRESS BAR
-       ============================================ */
-    .progress-bar {
-        position: fixed;
-        top: 0; left: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #0EA5E9, #A855F7, #FF3D68);
-        z-index: 10000;
-        width: 0%;
-        transition: width 0.05s linear;
-        box-shadow: 0 0 12px rgba(14,165,233,0.6);
-    }
-
-    /* ============================================
-       LOADER
-       ============================================ */
-    .loader {
-        position: fixed;
-        inset: 0;
-        background: #0A0A0A;
-        z-index: 20000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        gap: 24px;
-        transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1),
-                    visibility 0.8s;
-    }
-
-    .loader.hidden {
-        opacity: 0;
-        visibility: hidden;
-    }
-
-    .loader-star {
-        width: 80px;
-        height: 80px;
-        animation: loaderSpin 2s linear infinite;
-    }
-
-    @keyframes loaderSpin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
-    .loader-star path {
-        fill: #0EA5E9;
-    }
-
-    .loader-text {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 14px;
-        letter-spacing: 0.5em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.4);
-        animation: loaderPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes loaderPulse {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 0.8; }
-    }
-
-    /* ============================================
-       NAV
-       ============================================ */
-    nav {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        padding: 28px 48px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 5000;
-        mix-blend-mode: difference;
-        transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
-    }
-
-    nav.hidden {
-        transform: translateY(-100%);
-    }
-
-    .logo {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 30px;
-        font-weight: 500;
-        letter-spacing: -0.02em;
-        color: #FFFFFF;
-    }
-
-    .nav-links {
-        display: flex;
-        gap: 36px;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-    }
-
-    .nav-links a {
-        color: #FFFFFF;
-        text-decoration: none;
-        position: relative;
-        opacity: 0.7;
-        transition: opacity 0.3s;
-        padding: 4px 0;
-    }
-
-    .nav-links a::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 0;
-        height: 1px;
-        background: #0EA5E9;
-        transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
-    }
-
-    .nav-links a:hover {
-        opacity: 1;
-    }
-
-    .nav-links a:hover::after {
-        width: 100%;
-    }
-
-    /* ============================================
-       HERO SECTION
-       ============================================ */
-    .hero {
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-        perspective: 1200px;
-    }
-
-    .hero-bg-text {
-        position: absolute;
-        font-family: 'Cormorant Garamond', serif;
-        font-size: clamp(300px, 50vw, 800px);
-        font-weight: 300;
-        color: transparent;
-        -webkit-text-stroke: 1px rgba(255,255,255,0.05);
-        letter-spacing: -0.05em;
-        white-space: nowrap;
-        pointer-events: none;
-        z-index: 0;
-        user-select: none;
-        will-change: transform;
-    }
-
-    .hero-title {
-        font-size: clamp(72px, 15vw, 240px);
-        font-weight: 900;
-        letter-spacing: -0.06em;
-        line-height: 0.85;
-        text-align: center;
-        position: relative;
-        z-index: 2;
-        display: flex;
-        gap: 0.02em;
-        background: linear-gradient(180deg, #FFFFFF 0%, #0EA5E9 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .hero-title span {
-        display: inline-block;
-        opacity: 0;
-        transform: translateY(120%) rotate(8deg);
-        animation: heroLetter 1.4s cubic-bezier(0.16,1,0.3,1) forwards;
-        will-change: transform, opacity;
-    }
-
-    @keyframes heroLetter {
-        to {
-            opacity: 1;
-            transform: translateY(0) rotate(0);
-        }
-    }
-
-    .hero-subtitle {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: clamp(20px, 2.4vw, 32px);
-        font-style: italic;
-        font-weight: 400;
-        margin-top: 40px;
-        opacity: 0;
-        animation: fadeUp 1.2s 1.2s cubic-bezier(0.16,1,0.3,1) forwards;
-        z-index: 2;
-        position: relative;
-        color: rgba(255,255,255,0.75);
-        text-align: center;
-        max-width: 700px;
-    }
-
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 0.75; transform: translateY(0); }
-    }
-
-    .scroll-hint {
-        position: absolute;
-        bottom: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
-        font-size: 10px;
-        letter-spacing: 0.4em;
-        text-transform: uppercase;
-        opacity: 0.4;
-        z-index: 2;
-    }
-
-    .scroll-hint .line {
-        width: 1px;
-        height: 70px;
-        background: linear-gradient(to bottom, #0EA5E9, transparent);
-        animation: scrollLine 2.2s ease-in-out infinite;
-    }
-
-    @keyframes scrollLine {
-        0% { transform: scaleY(0); transform-origin: top; }
-        50% { transform: scaleY(1); transform-origin: top; }
-        50.01% { transform-origin: bottom; }
-        100% { transform: scaleY(0); transform-origin: bottom; }
-    }
-
-    /* ============================================
-       MARQUEE
-       ============================================ */
-    .marquee {
-        padding: 100px 0;
-        overflow: hidden;
-        white-space: nowrap;
-        border-top: 1px solid rgba(255,255,255,0.06);
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .marquee-track {
-        display: inline-flex;
-        gap: 80px;
-        animation: marquee 40s linear infinite;
-        will-change: transform;
-    }
-
-    .marquee-track span {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: clamp(48px, 7vw, 110px);
-        font-weight: 300;
-        font-style: italic;
-        letter-spacing: -0.02em;
-        color: rgba(255,255,255,0.12);
-        display: flex;
-        align-items: center;
-        gap: 80px;
-        white-space: nowrap;
-    }
-
-    .marquee-track span::after {
-        content: "✦";
-        color: #0EA5E9;
-        font-style: normal;
-        font-size: 0.5em;
-    }
-
-    @keyframes marquee {
-        from { transform: translateX(0); }
-        to { transform: translateX(-50%); }
-    }
-
-    /* ============================================
-       CHAPTERS (Scroll Sections)
-       ============================================ */
-    section.chapter {
-        min-height: 100vh;
-        padding: 140px 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .chapter-inner {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 100px;
-        max-width: 1400px;
-        width: 100%;
-        align-items: center;
-    }
-
-    .chapter.reversed .chapter-inner {
-        direction: rtl;
-    }
-
-    .chapter.reversed .chapter-inner > * {
-        direction: ltr;
-    }
-
-    /* Media con tilt 3D */
-    .chapter-media {
-        position: relative;
-        aspect-ratio: 4/5;
-        border-radius: 28px;
-        overflow: hidden;
-        will-change: transform;
-        transform-style: preserve-3d;
-        transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
-        box-shadow: 0 40px 100px rgba(0,0,0,0.6);
-    }
-
-    .chapter-media img,
-    .chapter-media video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 1.4s cubic-bezier(0.16,1,0.3,1);
-        will-change: transform;
-    }
-
-    .chapter-media:hover img,
-    .chapter-media:hover video {
-        transform: scale(1.08);
-    }
-
-    .chapter-media::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, transparent 55%, rgba(10,10,10,0.7) 100%);
-        pointer-events: none;
-    }
-
-    .chapter-number {
-        position: absolute;
-        top: -30px;
-        left: 32px;
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 140px;
-        font-weight: 300;
-        font-style: italic;
-        color: #0EA5E9;
-        opacity: 0.35;
-        z-index: 3;
-        line-height: 1;
-        mix-blend-mode: screen;
-    }
-
-    .chapter-content {
-        max-width: 580px;
-    }
-
-    .chapter-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 14px;
-        font-size: 11px;
-        letter-spacing: 0.4em;
-        text-transform: uppercase;
-        color: #0EA5E9;
-        margin-bottom: 28px;
-    }
-
-    .chapter-label::before {
-        content: "";
-        width: 48px;
-        height: 1px;
-        background: #0EA5E9;
-    }
-
-    .chapter-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: clamp(52px, 7vw, 96px);
-        font-weight: 400;
-        letter-spacing: -0.03em;
-        line-height: 1;
-        margin-bottom: 36px;
-    }
-
-    .chapter-title em {
-        font-style: italic;
-        color: #0EA5E9;
-    }
-
-    .chapter-text {
-        font-size: 17px;
-        line-height: 1.85;
-        color: rgba(255,255,255,0.6);
-        margin-bottom: 24px;
-    }
-
-    /* ============================================
-       REVEAL ANIMATIONS
-       ============================================ */
-    .reveal {
-        opacity: 0;
-        transform: translateY(80px);
-        transition: opacity 1.2s cubic-bezier(0.16,1,0.3,1),
-                    transform 1.2s cubic-bezier(0.16,1,0.3,1);
-        will-change: transform, opacity;
-    }
-
-    .reveal.visible {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .reveal-delay-1 { transition-delay: 0.15s; }
-    .reveal-delay-2 { transition-delay: 0.3s; }
-    .reveal-delay-3 { transition-delay: 0.45s; }
-
-    /* ============================================
-       HORIZONTAL SCROLL SECTION (Viaggi)
-       ============================================ */
-    .horizontal-scroll {
-        position: relative;
-        height: 300vh;
-        background: #0A0A0A;
-    }
-
-    .horizontal-sticky {
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-    }
-
-    .horizontal-track {
-        display: flex;
-        gap: 48px;
-        padding: 0 48px;
-        will-change: transform;
-    }
-
-    .horizontal-card {
-        flex-shrink: 0;
-        width: 70vw;
-        max-width: 900px;
-        aspect-ratio: 16/10;
-        border-radius: 28px;
-        overflow: hidden;
-        position: relative;
-        box-shadow: 0 40px 100px rgba(0,0,0,0.5);
-    }
-
-    .horizontal-card img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.8s cubic-bezier(0.16,1,0.3,1);
-    }
-
-    .horizontal-card:hover img {
-        transform: scale(1.05);
-    }
-
-    .horizontal-card-info {
-        position: absolute;
-        bottom: 32px;
-        left: 32px;
-        z-index: 2;
-    }
-
-    .horizontal-card-info h3 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 42px;
-        font-weight: 400;
-        font-style: italic;
-        margin-bottom: 8px;
-    }
-
-    .horizontal-card-info p {
-        font-size: 13px;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: #0EA5E9;
-    }
-
-    /* ============================================
-       FOOTER
-       ============================================ */
-    footer {
-        padding: 140px 48px 80px;
-        text-align: center;
-        border-top: 1px solid rgba(255,255,255,0.06);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .footer-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: clamp(60px, 10vw, 160px);
-        font-weight: 300;
-        font-style: italic;
-        letter-spacing: -0.03em;
-        margin-bottom: 48px;
-        line-height: 0.95;
-    }
-
-    .footer-title em {
-        color: #0EA5E9;
-    }
-
-    .footer-text {
-        font-size: 17px;
-        color: rgba(255,255,255,0.5);
-        max-width: 500px;
-        margin: 0 auto 48px;
-        line-height: 1.8;
-    }
-
-    .footer-links {
-        display: flex;
-        gap: 40px;
-        justify-content: center;
-        margin-bottom: 80px;
-        flex-wrap: wrap;
-    }
-
-    .footer-links a {
-        color: rgba(255,255,255,0.6);
-        text-decoration: none;
-        font-size: 12px;
-        letter-spacing: 0.25em;
-        text-transform: uppercase;
-        position: relative;
-        padding: 8px 0;
-        transition: color 0.3s;
-    }
-
-    .footer-links a::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 0;
-        height: 1px;
-        background: #0EA5E9;
-        transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
-    }
-
-    .footer-links a:hover {
-        color: #0EA5E9;
-    }
-
-    .footer-links a:hover::after {
-        width: 100%;
-    }
-
-    .footer-copy {
-        font-size: 12px;
-        color: rgba(255,255,255,0.25);
-        letter-spacing: 0.15em;
-    }
-
-    /* ============================================
-       RESPONSIVE
-       ============================================ */
-    @media (max-width: 900px) {
-        nav { padding: 20px 24px; }
-        .nav-links { display: none; }
-        section.chapter { padding: 100px 24px; }
-        .chapter-inner { grid-template-columns: 1fr; gap: 56px; }
-        .chapter.reversed .chapter-inner { direction: ltr; }
-        .chapter-number { font-size: 100px; }
-        .horizontal-card { width: 85vw; }
-        footer { padding: 100px 24px 60px; }
-        .footer-links { gap: 24px; }
-    }
-
-    @media (hover: none) {
-        body { cursor: auto; }
-        .cursor-dot, .cursor-ring { display: none; }
-    }
+
+:root{
+  --black:#080908;
+  --cream:#eeeade;
+  --lime:#d9ff55;
+  --orange:#ff6947;
+  --blue:#a8d9df;
+  --green:#183322;
+  --white:#f7f6ee;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  background:var(--black);
+}
+
+body{
+  margin:0;
+  background:var(--cream);
+  color:var(--black);
+  font-family:"Manrope",sans-serif;
+  overflow-x:hidden;
+}
+
+body.loading{
+  overflow:hidden;
+}
+
+::selection{
+  background:var(--lime);
+  color:#000;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+
+/* =========================================================
+   LOADER
+========================================================= */
+
+#loader{
+  position:fixed;
+  inset:0;
+  background:#080908;
+  color:white;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.loader-inner{
+  width:min(700px,85vw);
+}
+
+.loader-label{
+  display:flex;
+  justify-content:space-between;
+  font-family:"DM Mono";
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.loader-line{
+  height:1px;
+  background:#333;
+  margin:25px 0;
+  overflow:hidden;
+}
+
+.loader-line div{
+  height:100%;
+  width:0;
+  background:var(--lime);
+}
+
+.loader-number{
+  font-size:clamp(6rem,15vw,14rem);
+  font-weight:800;
+  letter-spacing:-.1em;
+  line-height:.7;
+}
+
+
+/* =========================================================
+   CUSTOM CURSOR
+========================================================= */
+
+.cursor{
+  position:fixed;
+  width:14px;
+  height:14px;
+  border:1px solid white;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:10000;
+  mix-blend-mode:difference;
+  transform:translate(-50%,-50%);
+}
+
+.cursor-ring{
+  position:fixed;
+  width:45px;
+  height:45px;
+  border:1px solid white;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  mix-blend-mode:difference;
+  transform:translate(-50%,-50%);
+  transition:width .4s cubic-bezier(.16,1,.3,1),
+             height .4s cubic-bezier(.16,1,.3,1),
+             background .4s;
+}
+
+.cursor-ring.active{
+  width:100px;
+  height:100px;
+  background:var(--lime);
+  border-color:var(--lime);
+}
+
+
+/* =========================================================
+   NAV
+========================================================= */
+
+.nav{
+  position:fixed;
+  z-index:5000;
+  top:0;
+  left:0;
+  width:100%;
+  padding:22px 28px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:white;
+  mix-blend-mode:difference;
+  pointer-events:none;
+}
+
+.nav a{
+  pointer-events:auto;
+}
+
+.logo{
+  font-family:"DM Mono";
+  font-size:11px;
+  letter-spacing:.12em;
+}
+
+.nav-right{
+  display:flex;
+  gap:25px;
+  font-family:"DM Mono";
+  font-size:10px;
+  text-transform:uppercase;
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.progress{
+  position:fixed;
+  z-index:6000;
+  top:0;
+  left:0;
+  height:3px;
+  width:100%;
+}
+
+.progress-bar{
+  width:0;
+  height:100%;
+  background:var(--lime);
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+  height:100svh;
+  background:#070807;
+  color:white;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#particles{
+  position:absolute;
+  inset:0;
+}
+
+.hero-glow{
+  position:absolute;
+  width:50vw;
+  height:50vw;
+  border-radius:50%;
+  background:radial-gradient(
+    circle,
+    rgba(217,255,85,.17),
+    transparent 65%
+  );
+  filter:blur(30px);
+}
+
+.hero-content{
+  position:relative;
+  z-index:5;
+  width:90%;
+  text-align:center;
+}
+
+.hero-small{
+  font-family:"DM Mono";
+  font-size:10px;
+  letter-spacing:.2em;
+  color:var(--lime);
+  text-transform:uppercase;
+  margin-bottom:35px;
+}
+
+.hero-title{
+  font-size:clamp(5rem,17vw,17rem);
+  font-weight:800;
+  letter-spacing:-.11em;
+  line-height:.72;
+  margin:0;
+}
+
+.hero-title div{
+  overflow:hidden;
+}
+
+.hero-title span{
+  display:inline-block;
+}
+
+.hero-title .outline{
+  color:transparent;
+  -webkit-text-stroke:1px white;
+  font-family:"Playfair Display";
+  font-style:italic;
+  font-weight:500;
+}
+
+.hero-description{
+  max-width:480px;
+  margin:45px auto 0;
+  color:#999;
+  font-size:13px;
+  line-height:1.8;
+}
+
+.hero-scroll{
+  position:absolute;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  font-family:"DM Mono";
+  font-size:9px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:#888;
+}
+
+
+/* =========================================================
+   INTRO — TEXT COLLISION
+========================================================= */
+
+.intro{
+  min-height:120vh;
+  background:var(--cream);
+  position:relative;
+  overflow:hidden;
+  padding:15vh 7vw;
+}
+
+.intro-number{
+  font-family:"DM Mono";
+  font-size:10px;
+  letter-spacing:.15em;
+}
+
+.intro-heading{
+  font-size:clamp(4rem,11vw,12rem);
+  line-height:.76;
+  letter-spacing:-.1em;
+  font-weight:800;
+  margin:15vh 0 0;
+  position:relative;
+  z-index:3;
+}
+
+.intro-heading .serif{
+  font-family:"Playfair Display";
+  font-style:italic;
+  font-weight:500;
+}
+
+.floating-word{
+  position:absolute;
+  font-size:clamp(4rem,12vw,13rem);
+  font-weight:800;
+  letter-spacing:-.09em;
+  color:var(--orange);
+  opacity:.9;
+  z-index:1;
+  pointer-events:none;
+}
+
+.word1{
+  top:12%;
+  right:-5%;
+  transform:rotate(12deg);
+}
+
+.word2{
+  bottom:10%;
+  left:-5%;
+  transform:rotate(-8deg);
+  color:var(--green);
+}
+
+.intro-copy{
+  width:min(500px,90%);
+  margin:100px 0 0 auto;
+  font-size:17px;
+  line-height:1.7;
+  position:relative;
+  z-index:5;
+}
+
+
+/* =========================================================
+   3D PORTAL
+========================================================= */
+
+.portal{
+  height:220vh;
+  background:#112319;
+  color:white;
+  position:relative;
+}
+
+.portal-sticky{
+  position:sticky;
+  top:0;
+  height:100svh;
+  overflow:hidden;
+  perspective:1200px;
+}
+
+.portal-background{
+  position:absolute;
+  inset:-20%;
+  background:
+    radial-gradient(circle at 50% 45%,
+      rgba(217,255,85,.25),
+      transparent 12%),
+    radial-gradient(circle at 20% 20%,
+      rgba(120,190,200,.25),
+      transparent 25%),
+    linear-gradient(
+      150deg,
+      #10251a,
+      #31543c 50%,
+      #08120b
+    );
+}
+
+.moon{
+  position:absolute;
+  width:30vw;
+  height:30vw;
+  min-width:200px;
+  min-height:200px;
+  border-radius:50%;
+  background:#f5f0c7;
+  right:10%;
+  top:8%;
+  box-shadow:
+    0 0 80px rgba(245,240,199,.2),
+    0 0 200px rgba(245,240,199,.1);
+}
+
+.portal-title{
+  position:absolute;
+  z-index:5;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.portal-title h2{
+  font-size:clamp(4rem,13vw,15rem);
+  line-height:.7;
+  letter-spacing:-.11em;
+  margin:0;
+}
+
+.portal-title h2 span{
+  display:block;
+}
+
+.portal-title .magic{
+  color:var(--lime);
+  font-family:"Playfair Display";
+  font-style:italic;
+  font-weight:500;
+  font-size:.48em;
+  letter-spacing:-.04em;
+}
+
+.forest{
+  position:absolute;
+  bottom:-15%;
+  left:-10%;
+  width:120%;
+  height:50%;
+  background:
+    radial-gradient(
+      ellipse at 10% 100%,
+      #061008 0 25%,
+      transparent 26%
+    ),
+    radial-gradient(
+      ellipse at 30% 100%,
+      #08150b 0 30%,
+      transparent 31%
+    ),
+    radial-gradient(
+      ellipse at 55% 100%,
+      #061108 0 35%,
+      transparent 36%
+    ),
+    radial-gradient(
+      ellipse at 85% 100%,
+      #040d06 0 30%,
+      transparent 31%
+    );
+}
+
+.portal-caption{
+  position:absolute;
+  z-index:10;
+  left:7%;
+  bottom:10%;
+  max-width:260px;
+  font-family:"DM Mono";
+  font-size:10px;
+  line-height:1.7;
+  color:#b8c6b8;
+}
+
+
+/* =========================================================
+   CHAOTIC 3D OBJECTS
+========================================================= */
+
+.orb-section{
+  height:150vh;
+  background:#dce7dc;
+  position:relative;
+  overflow:hidden;
+}
+
+.orb-sticky{
+  position:sticky;
+  top:0;
+  height:100svh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  perspective:1000px;
+}
+
+.orb{
+  width:min(35vw,450px);
+  aspect-ratio:1;
+  border-radius:47% 53% 60% 40%;
+  background:
+    radial-gradient(
+      circle at 30% 25%,
+      white,
+      var(--lime) 18%,
+      #7a9b42 50%,
+      #182218 75%
+    );
+  box-shadow:
+    inset -40px -40px 80px rgba(0,0,0,.25),
+    30px 40px 100px rgba(0,0,0,.25);
+  transform-style:preserve-3d;
+}
+
+.orb::after{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  border:1px solid #172117;
+  border-radius:50%;
+  transform:rotateX(70deg) rotateZ(20deg);
+}
+
+.orb-text{
+  position:absolute;
+  width:100%;
+  text-align:center;
+  top:12%;
+  font-size:clamp(3rem,8vw,9rem);
+  line-height:.8;
+  font-weight:800;
+  letter-spacing:-.1em;
+  z-index:5;
+}
+
+.orb-text span{
+  display:block;
+}
+
+.orb-text .serif{
+  font-family:"Playfair Display";
+  font-style:italic;
+  font-weight:500;
+}
+
+
+/* =========================================================
+   TRAVEL — HORIZONTAL
+========================================================= */
+
+.travel{
+  background:#111;
+  color:white;
+  overflow:hidden;
+}
+
+.travel-intro{
+  height:100svh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.travel-intro h2{
+  font-size:clamp(5rem,14vw,15rem);
+  line-height:.7;
+  letter-spacing:-.11em;
+  margin:0;
+}
+
+.travel-intro em{
+  font-family:"Playfair Display";
+  font-weight:500;
+}
+
+.travel-intro p{
+  max-width:450px;
+  margin:50px auto 0;
+  color:#777;
+  line-height:1.7;
+  font-size:13px;
+}
+
+.travel-track-wrap{
+  height:100vh;
+}
+
+.travel-track{
+  display:flex;
+  gap:5vw;
+  width:max-content;
+  height:100%;
+  align-items:center;
+  padding:0 7vw;
+}
+
+.travel-card{
+  width:40vw;
+  min-width:330px;
+  height:65vh;
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.travel-card:nth-child(2){
+  transform:translateY(12vh) rotate(3deg);
+}
+
+.travel-card:nth-child(3){
+  transform:translateY(-9vh) rotate(-2deg);
+}
+
+.travel-card:nth-child(4){
+  transform:translateY(7vh) rotate(2deg);
+}
+
+.travel-card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:scale(1.2);
+}
+
+.travel-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    to top,
+    rgba(0,0,0,.8),
+    transparent 60%
+  );
+}
+
+.travel-info{
+  position:absolute;
+  z-index:3;
+  bottom:30px;
+  left:30px;
+}
+
+.travel-info small{
+  font-family:"DM Mono";
+  color:var(--lime);
+}
+
+.travel-info h3{
+  font-size:clamp(2rem,4vw,4rem);
+  margin:10px 0 0;
+  letter-spacing:-.06em;
+}
+
+
+/* =========================================================
+   IMAGE / VIDEO COLLISION
+========================================================= */
+
+.cinema{
+  height:170vh;
+  background:var(--orange);
+  position:relative;
+  overflow:hidden;
+}
+
+.cinema-sticky{
+  position:sticky;
+  top:0;
+  height:100svh;
+  overflow:hidden;
+}
+
+.cinema-title{
+  position:absolute;
+  z-index:10;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:clamp(5rem,15vw,16rem);
+  line-height:.7;
+  letter-spacing:-.11em;
+  text-align:center;
+  white-space:nowrap;
+}
+
+.cinema-title span{
+  display:block;
+}
+
+.cinema-title .outline{
+  color:transparent;
+  -webkit-text-stroke:2px black;
+  font-family:"Playfair Display";
+  font-style:italic;
+}
+
+.cinema-image{
+  position:absolute;
+  width:32vw;
+  height:42vh;
+  overflow:hidden;
+}
+
+.cinema-image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.cinema-image.one{
+  left:8%;
+  top:10%;
+  transform:rotate(-8deg);
+}
+
+.cinema-image.two{
+  right:8%;
+  bottom:8%;
+  transform:rotate(7deg);
+}
+
+.cinema-image.three{
+  right:25%;
+  top:10%;
+  width:20vw;
+  height:25vh;
+  transform:rotate(5deg);
+}
+
+
+/* =========================================================
+   SKILLS — MOVING LIST
+========================================================= */
+
+.skills{
+  background:#eeeade;
+  padding:15vh 7vw;
+}
+
+.skills-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:15vh;
+}
+
+.skills-header h2{
+  font-size:clamp(5rem,12vw,14rem);
+  line-height:.7;
+  letter-spacing:-.11em;
+  margin:0;
+}
+
+.skills-header p{
+  width:260px;
+  font-size:12px;
+  line-height:1.7;
+}
+
+.skill{
+  border-top:1px solid rgba(0,0,0,.2);
+  padding:35px 0;
+  display:grid;
+  grid-template-columns:80px 1fr 1fr;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+  transition:.5s;
+}
+
+.skill:last-child{
+  border-bottom:1px solid rgba(0,0,0,.2);
+}
+
+.skill:hover{
+  padding-left:35px;
+  background:var(--lime);
+}
+
+.skill-number{
+  font-family:"DM Mono";
+  font-size:10px;
+}
+
+.skill h3{
+  margin:0;
+  font-size:clamp(2rem,4vw,4rem);
+  letter-spacing:-.06em;
+}
+
+.skill p{
+  margin:0;
+  max-width:400px;
+  font-size:12px;
+  line-height:1.7;
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.timeline{
+  background:#080908;
+  color:white;
+  padding:18vh 7vw;
+  overflow:hidden;
+}
+
+.timeline h2{
+  font-size:clamp(5rem,14vw,15rem);
+  line-height:.68;
+  letter-spacing:-.11em;
+  margin:0 0 15vh;
+}
+
+.timeline h2 em{
+  font-family:"Playfair Display";
+  font-weight:500;
+}
+
+.timeline-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+}
+
+.timeline-item{
+  min-height:350px;
+  padding:25px;
+  border-left:1px solid #333;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.timeline-item small{
+  font-family:"DM Mono";
+  color:var(--lime);
+}
+
+.timeline-item h3{
+  font-size:2rem;
+  letter-spacing:-.05em;
+}
+
+.timeline-item p{
+  color:#777;
+  font-size:12px;
+  line-height:1.7;
+}
+
+
+/* =========================================================
+   FINAL
+========================================================= */
+
+.final{
+  min-height:100svh;
+  background:var(--lime);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.final-title{
+  font-size:clamp(5rem,17vw,18rem);
+  line-height:.65;
+  letter-spacing:-.12em;
+  text-align:center;
+  margin:0;
+}
+
+.final-title span{
+  display:block;
+}
+
+.final-title .serif{
+  font-family:"Playfair Display";
+  font-style:italic;
+  font-weight:500;
+}
+
+.final-button{
+  position:absolute;
+  bottom:10%;
+  left:50%;
+  transform:translateX(-50%);
+  border:1px solid #000;
+  border-radius:100px;
+  padding:17px 28px;
+  font-family:"DM Mono";
+  font-size:10px;
+  text-transform:uppercase;
+  transition:.4s;
+}
+
+.final-button:hover{
+  background:#000;
+  color:var(--lime);
+  transform:translateX(-50%) scale(1.1);
+}
+
+.footer{
+  position:absolute;
+  bottom:25px;
+  left:25px;
+  right:25px;
+  display:flex;
+  justify-content:space-between;
+  font-family:"DM Mono";
+  font-size:8px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:800px){
+
+  .nav{
+    padding:16px;
+  }
+
+  .nav-right{
+    gap:10px;
+  }
+
+  .nav-right a:nth-child(n+3){
+    display:none;
+  }
+
+  .hero-title{
+    font-size:21vw;
+  }
+
+  .intro{
+    padding:12vh 7vw;
+  }
+
+  .intro-heading{
+    font-size:18vw;
+  }
+
+  .orb{
+    width:65vw;
+  }
+
+  .travel-card{
+    width:75vw;
+  }
+
+  .cinema-image{
+    width:48vw;
+    height:30vh;
+  }
+
+  .cinema-image.three{
+    width:30vw;
+  }
+
+  .skill{
+    grid-template-columns:40px 1fr;
+  }
+
+  .skill p{
+    grid-column:2;
+    margin-top:15px;
+  }
+
+  .timeline-grid{
+    grid-template-columns:1fr;
+  }
+
+  .timeline-item{
+    min-height:250px;
+  }
+
+  .cursor,
+  .cursor-ring{
+    display:none;
+  }
+
+}
+
 </style>
 </head>
-<body>
 
-<!-- LOADER -->
-<div class="loader" id="loader">
-    <svg class="loader-star" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 0 C51 30 51 43 59 48 C67 50 78 50 100 50 C78 51 67 51 59 52 C51 57 51 70 50 100 C49 70 49 57 41 52 C33 51 22 51 0 50 C22 50 33 50 41 48 C49 43 49 30 50 0 Z" />
-    </svg>
-    <div class="loader-text">Loading Experience</div>
+
+<body class="loading">
+
+
+<!-- =====================================================
+     LOADER
+===================================================== -->
+
+<div id="loader">
+
+  <div class="loader-inner">
+
+    <div class="loader-label">
+      <span>MICHELE / 29.08</span>
+      <span>ENTERING WORLD</span>
+    </div>
+
+    <div class="loader-line">
+      <div></div>
+    </div>
+
+    <div class="loader-number">00</div>
+
+  </div>
+
 </div>
+
 
 <!-- CURSOR -->
-<div class="cursor-dot"></div>
+
+<div class="cursor"></div>
 <div class="cursor-ring"></div>
 
-<!-- NOISE + PROGRESS -->
-<div class="noise"></div>
-<div class="progress-bar" id="progressBar"></div>
+
+<!-- PROGRESS -->
+
+<div class="progress">
+  <div class="progress-bar"></div>
+</div>
+
 
 <!-- NAV -->
-<nav id="mainNav">
-    <div class="logo">Michele</div>
-    <div class="nav-links">
-        <a href="#viaggi">Viaggi</a>
-        <a href="#ghibli">Ghibli</a>
-        <a href="#creativita">Creatività</a>
-        <a href="#contatti">Contatti</a>
-    </div>
+
+<nav class="nav">
+
+  <a class="logo" href="#top">
+    MC / 29
+  </a>
+
+  <div class="nav-right">
+
+    <a href="#about">about</a>
+    <a href="#travel">travel</a>
+    <a href="#creative">creative</a>
+    <a href="#contact">contact</a>
+
+  </div>
+
 </nav>
 
-<!-- HERO -->
+
+<main id="top">
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
 <section class="hero">
-    <div class="hero-bg-text" id="heroBgText">Wanderer</div>
-    <h1 class="hero-title" id="heroTitle"></h1>
-    <p class="hero-subtitle">Viaggiatore, sognatore, creatore di storie</p>
-    <div class="scroll-hint">
-        <span>Scorri</span>
-        <div class="line"></div>
-    </div>
-</section>
 
-<!-- MARQUEE -->
-<div class="marquee">
-    <div class="marquee-track">
-        <span>Viaggi</span>
-        <span>Studio Ghibli</span>
-        <span>Creatività</span>
-        <span>Storytelling</span>
-        <span>Viaggi</span>
-        <span>Studio Ghibli</span>
-        <span>Creatività</span>
-        <span>Storytelling</span>
-    </div>
-</div>
+  <canvas id="particles"></canvas>
 
-<!-- HORIZONTAL SCROLL — VIAGGI -->
-<div class="horizontal-scroll" id="viaggi">
-    <div class="horizontal-sticky">
-        <div class="horizontal-track" id="horizontalTrack">
-            <div class="horizontal-card">
-                <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1400&q=80" alt="Strade" />
-                <div class="horizontal-card-info">
-                    <h3>Strade</h3>
-                    <p>Il mondo come casa</p>
-                </div>
-            </div>
-            <div class="horizontal-card">
-                <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1400&q=80" alt="Montagne" />
-                <div class="horizontal-card-info">
-                    <h3>Orizzonti</h3>
-                    <p>Respirare l'ignoto</p>
-                </div>
-            </div>
-            <div class="horizontal-card">
-                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&q=80" alt="Mare" />
-                <div class="horizontal-card-info">
-                    <h3>Oceani</h3>
-                    <p>La calma infinita</p>
-                </div>
-            </div>
-            <div class="horizontal-card">
-                <img src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=1400&q=80" alt="Città" />
-                <div class="horizontal-card-info">
-                    <h3>Città</h3>
-                    <p>Storie tra i vicoli</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  <div class="hero-glow"></div>
 
-<!-- CHAPTER 02 — GHIBLI -->
-<section class="chapter reversed" id="ghibli">
-    <div class="chapter-inner">
-        <div class="chapter-media tilt-card reveal" data-tilt>
-            <div class="chapter-number">02</div>
-            <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1200&q=80" alt="Ghibli" />
-        </div>
-        <div class="chapter-content">
-            <div class="chapter-label reveal">Capitolo 02</div>
-            <h2 class="chapter-title reveal reveal-delay-1">La <em>città incantata</em></h2>
-            <p class="chapter-text reveal reveal-delay-2">
-                Il mio immaginario è popolato da spiriti della foresta, città incantate e macchine volanti. Miyazaki mi ha insegnato che la magia è ovunque, basta saper guardare.
-            </p>
-            <p class="chapter-text reveal reveal-delay-3">
-                La mia creatività nasce da lì: da un mondo dove tutto è possibile, dove un treno può camminare sull'acqua e un'anima può brillare di luce propria.
-            </p>
-        </div>
-    </div>
-</section>
+  <div class="hero-content">
 
-<!-- CHAPTER 03 — CREATIVITÀ -->
-<section class="chapter" id="creativita">
-    <div class="chapter-inner">
-        <div class="chapter-media tilt-card reveal" data-tilt>
-            <div class="chapter-number">03</div>
-            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&q=80" alt="Creatività" />
-        </div>
-        <div class="chapter-content">
-            <div class="chapter-label reveal">Capitolo 03</div>
-            <h2 class="chapter-title reveal reveal-delay-1">Tradurre <em>emozioni</em></h2>
-            <p class="chapter-text reveal reveal-delay-2">
-                Traduco emozioni in codice, pixel e parole. Progetto esperienze digitali che spero lascino un segno, come un fotogramma di un film che ti rimane dentro.
-            </p>
-            <p class="chapter-text reveal reveal-delay-3">
-                Ogni progetto è un viaggio: si parte da un'idea, si attraversano incertezze, e alla fine si arriva in un posto che non esisteva prima.
-            </p>
-        </div>
+    <div class="hero-small">
+      Web Communication / Creative / Curious
     </div>
-</section>
 
-<!-- FOOTER -->
-<footer id="contatti">
-    <h2 class="footer-title reveal">Let's <em>connect</em></h2>
-    <p class="footer-text reveal reveal-delay-1">
-        Se vuoi parlare di viaggi, Ghibli, design o semplicemente di storie — scrivimi.
+    <h1 class="hero-title">
+
+      <div>
+        <span>THIS IS</span>
+      </div>
+
+      <div>
+        <span class="outline">MY WORLD.</span>
+      </div>
+
+    </h1>
+
+    <p class="hero-description">
+
+      A constantly moving collection of places,
+      ideas, pixels, stories and things I haven't
+      discovered yet.
+
     </p>
-    <div class="footer-links reveal reveal-delay-2">
-        <a href="mailto:ciao@esempio.com">Email</a>
-        <a href="https://instagram.com" target="_blank">Instagram</a>
-        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+
+  </div>
+
+  <div class="hero-scroll">
+    ↓ scroll to enter
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ABOUT
+===================================================== -->
+
+<section class="intro" id="about">
+
+  <div class="intro-number">
+    01 / ABOUT ME
+  </div>
+
+  <div class="floating-word word1">
+    CURIOUS
+  </div>
+
+  <div class="floating-word word2">
+    ALIVE
+  </div>
+
+  <h2 class="intro-heading">
+
+    I DON'T WANT<br>
+
+    <span class="serif">
+      ordinary.
+    </span>
+
+  </h2>
+
+  <div class="intro-copy">
+
+    <p>
+      Hi, I'm Michele.
+    </p>
+
+    <p>
+      I'm a Web Communication Design student,
+      digital creator and perpetual explorer
+      interested in the strange space where
+      communication, design, technology and
+      emotion collide.
+    </p>
+
+    <p>
+      I like interfaces that feel alive.
+      Stories that move.
+      Ideas that make people stop scrolling.
+      And experiences that leave something behind.
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ENCHANTED WORLD
+===================================================== -->
+
+<section class="portal">
+
+  <div class="portal-sticky">
+
+    <div class="portal-background"></div>
+
+    <div class="moon"></div>
+
+    <div class="forest"></div>
+
+    <div class="portal-title">
+
+      <h2>
+
+        <span>STAY</span>
+
+        <span class="magic">
+          curious.
+        </span>
+
+        <span>STAY</span>
+
+        <span>ALIVE.</span>
+
+      </h2>
+
     </div>
-    <div class="footer-copy">© 2026 Michele — Fatto con cura</div>
-</footer>
+
+    <div class="portal-caption">
+
+      Somewhere between a train leaving
+      the station, a rainy afternoon and
+      a completely unfamiliar street...
+
+      <br><br>
+
+      ...is the feeling I am always chasing.
+
+      <br><br>
+
+      <strong>
+        Wonder.
+      </strong>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     3D OBJECT
+===================================================== -->
+
+<section class="orb-section">
+
+  <div class="orb-sticky">
+
+    <div class="orb"></div>
+
+    <div class="orb-text">
+
+      <span>MAKE</span>
+
+      <span class="serif">
+        something
+      </span>
+
+      <span>MOVE.</span>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     TRAVEL
+===================================================== -->
+
+<section class="travel" id="travel">
+
+  <div class="travel-intro">
+
+    <div>
+
+      <div style="
+        font-family:'DM Mono';
+        font-size:10px;
+        letter-spacing:.15em;
+        margin-bottom:30px;
+      ">
+        02 / PLACES
+      </div>
+
+      <h2>
+
+        I GO<br>
+
+        WHERE<br>
+
+        <em>
+          CURIOSITY
+        </em><br>
+
+        LEADS.
+
+      </h2>
+
+      <p>
+
+        I don't travel to collect countries.
+        I travel to collect feelings.
+
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="travel-track-wrap">
+
+    <div class="travel-track">
+
+
+      <article class="travel-card">
+
+        <img
+          src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1600&q=90"
+          alt="Japan"
+        >
+
+        <div class="travel-info">
+
+          <small>
+            01 / EAST
+          </small>
+
+          <h3>
+            JAPAN
+          </h3>
+
+        </div>
+
+      </article>
+
+
+
+      <article class="travel-card">
+
+        <img
+          src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=90"
+          alt="Mountains"
+        >
+
+        <div class="travel-info">
+
+          <small>
+            02 / NORTH
+          </small>
+
+          <h3>
+            ELSEWHERE
+          </h3>
+
+        </div>
+
+      </article>
+
+
+
+      <article class="travel-card">
+
+        <img
+          src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1600&q=90"
+          alt="Road"
+        >
+
+        <div class="travel-info">
+
+          <small>
+            03 / WEST
+          </small>
+
+          <h3>
+            THE ROAD
+          </h3>
+
+        </div>
+
+      </article>
+
+
+
+      <article class="travel-card">
+
+        <img
+          src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&q=90"
+          alt="Landscape"
+        >
+
+        <div class="travel-info">
+
+          <small>
+            04 / AWAY
+          </small>
+
+          <h3>
+            SOMEWHERE
+          </h3>
+
+        </div>
+
+      </article>
+
+
+
+      <article class="travel-card">
+
+        <img
+          src="https://images.unsplash.com/photo-1492571350019-22de08371fd3?auto=format&fit=crop&w=1600&q=90"
+          alt="City"
+        >
+
+        <div class="travel-info">
+
+          <small>
+            05 / NEXT
+          </small>
+
+          <h3>
+            NEXT STOP
+          </h3>
+
+        </div>
+
+      </article>
+
+
+    </div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CINEMA / CREATIVE
+===================================================== -->
+
+<section class="cinema" id="creative">
+
+  <div class="cinema-sticky">
+
+
+    <div class="cinema-image one">
+
+      <img
+        src="https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=1000&q=90"
+        alt=""
+      >
+
+    </div>
+
+
+    <div class="cinema-image two">
+
+      <img
+        src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1000&q=90"
+        alt=""
+      >
+
+    </div>
+
+
+    <div class="cinema-image three">
+
+      <img
+        src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1000&q=90"
+        alt=""
+      >
+
+    </div>
+
+
+    <div class="cinema-title">
+
+      <span>
+        CREATE
+      </span>
+
+      <span class="outline">
+        FEEL
+      </span>
+
+      <span>
+        MOVE.
+      </span>
+
+    </div>
+
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     SKILLS
+===================================================== -->
+
+<section class="skills">
+
+  <div class="skills-header">
+
+    <h2>
+      WHAT<br>
+      I DO.
+    </h2>
+
+    <p>
+      Different tools.
+      Different disciplines.
+      One obsession:
+      making communication
+      feel human.
+    </p>
+
+  </div>
+
+
+
+  <div class="skill">
+
+    <div class="skill-number">
+      01
+    </div>
+
+    <h3>
+      Digital Experiences
+    </h3>
+
+    <p>
+      Interfaces, interaction,
+      visual systems and digital
+      experiences that make
+      people want to explore.
+    </p>
+
+  </div>
+
+
+
+  <div class="skill">
+
+    <div class="skill-number">
+      02
+    </div>
+
+    <h3>
+      Social Storytelling
+    </h3>
+
+    <p>
+      Turning ideas into content
+      that earns attention without
+      losing its personality.
+    </p>
+
+  </div>
+
+
+
+  <div class="skill">
+
+    <div class="skill-number">
+      03
+    </div>
+
+    <h3>
+      SEO & Content
+    </h3>
+
+    <p>
+      Making stories discoverable
+      while keeping the human
+      voice intact.
+    </p>
+
+  </div>
+
+
+
+  <div class="skill">
+
+    <div class="skill-number">
+      04
+    </div>
+
+    <h3>
+      Visual Design
+    </h3>
+
+    <p>
+      Typography, composition,
+      imagery, motion and the
+      tiny details that create
+      personality.
+    </p>
+
+  </div>
+
+
+
+  <div class="skill">
+
+    <div class="skill-number">
+      05
+    </div>
+
+    <h3>
+      Experimentation
+    </h3>
+
+    <p>
+      New tools, new languages,
+      new technologies, new
+      ways of solving problems.
+    </p>
+
+  </div>
+
+
+</section>
+
+
+
+<!-- =====================================================
+     TIMELINE
+===================================================== -->
+
+<section class="timeline">
+
+  <div style="
+    font-family:'DM Mono';
+    font-size:10px;
+    letter-spacing:.15em;
+    margin-bottom:40px;
+  ">
+    04 / THE JOURNEY
+  </div>
+
+
+  <h2>
+
+    STILL<br>
+
+    <em>
+      BECOMING.
+    </em>
+
+  </h2>
+
+
+  <div class="timeline-grid">
+
+
+    <article class="timeline-item">
+
+      <small>
+        2003 / ITALY
+      </small>
+
+      <div>
+
+        <h3>
+          Start curious.
+        </h3>
+
+        <p>
+          A childhood surrounded by
+          languages, stories and the
+          feeling that there was always
+          something beyond the next door.
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <article class="timeline-item">
+
+      <small>
+        VENICE
+      </small>
+
+      <div>
+
+        <h3>
+          Languages.
+        </h3>
+
+        <p>
+          Learning how meaning changes
+          when culture, language and
+          context change.
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <article class="timeline-item">
+
+      <small>
+        DENMARK / NOW
+      </small>
+
+      <div>
+
+        <h3>
+          Design.
+        </h3>
+
+        <p>
+          Web Communication Design,
+          digital experiences and a
+          completely new chapter.
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <article class="timeline-item">
+
+      <small>
+        NEXT / UNKNOWN
+      </small>
+
+      <div>
+
+        <h3>
+          Keep moving.
+        </h3>
+
+        <p>
+          There is no final version.
+          Only better questions,
+          better stories and another
+          place to explore.
+        </p>
+
+      </div>
+
+    </article>
+
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     FINAL
+===================================================== -->
+
+<section class="final" id="contact">
+
+  <h2 class="final-title">
+
+    <span>
+      SEE
+    </span>
+
+    <span class="serif">
+      you
+    </span>
+
+    <span>
+      AROUND.
+    </span>
+
+  </h2>
+
+
+  <a
+    class="final-button"
+    href="mailto:michelecastronovi29@gmail.com"
+  >
+    Let's create something ↗
+  </a>
+
+
+  <div class="footer">
+
+    <span>
+      MICHELE CASTRONOVI
+    </span>
+
+    <span>
+      MADE WITH CURIOSITY / 2026
+    </span>
+
+  </div>
+
+</section>
+
+
+</main>
+
+
 
 <script>
-    // ═══════════════════════════════════════════════
-    // LOADER
-    // ═══════════════════════════════════════════════
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            document.getElementById('loader').classList.add('hidden');
-        }, 1200);
-    });
 
-    // ═══════════════════════════════════════════════
-    // HERO TITLE — LETTERE ANIMATE
-    // ═══════════════════════════════════════════════
-    const heroTitle = document.getElementById('heroTitle');
-    const name = 'MICHELE';
-    name.split('').forEach((letter, i) => {
-        const span = document.createElement('span');
-        span.textContent = letter;
-        span.style.animationDelay = (0.3 + i * 0.08) + 's';
-        heroTitle.appendChild(span);
-    });
+/* =========================================================
+   GSAP
+========================================================= */
 
-    // ═══════════════════════════════════════════════
-    // CUSTOM CURSOR
-    // ═══════════════════════════════════════════════
-    const dot = document.querySelector('.cursor-dot');
-    const ring = document.querySelector('.cursor-ring');
-    let mouseX = 0, mouseY = 0;
-    let ringX = 0, ringY = 0;
+gsap.registerPlugin(ScrollTrigger);
 
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
-    });
 
-    function animateRing() {
-        ringX += (mouseX - ringX) * 0.14;
-        ringY += (mouseY - ringY) * 0.14;
-        ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
-        requestAnimationFrame(animateRing);
+/* =========================================================
+   LENIS
+========================================================= */
+
+const lenis = new Lenis({
+  duration:1.2,
+  smoothWheel:true,
+  wheelMultiplier:.8
+});
+
+lenis.on(
+  "scroll",
+  ScrollTrigger.update
+);
+
+gsap.ticker.add(
+  time => lenis.raf(time * 1000)
+);
+
+gsap.ticker.lagSmoothing(0);
+
+
+/* =========================================================
+   LOADER
+========================================================= */
+
+window.addEventListener("load",()=>{
+
+  const loader =
+    document.querySelector("#loader");
+
+  const line =
+    document.querySelector(".loader-line div");
+
+  const number =
+    document.querySelector(".loader-number");
+
+  let progress = {
+    value:0
+  };
+
+  gsap.to(line,{
+    width:"100%",
+    duration:1.8,
+    ease:"power4.inOut"
+  });
+
+  gsap.to(progress,{
+    value:100,
+    duration:1.8,
+    ease:"power4.inOut",
+
+    onUpdate(){
+
+      number.textContent =
+        Math.round(progress.value)
+        .toString()
+        .padStart(2,"0");
+
+    },
+
+    onComplete(){
+
+      gsap.to(loader,{
+        opacity:0,
+        duration:.8,
+
+        onComplete(){
+
+          loader.remove();
+
+          document.body.classList.remove(
+            "loading"
+          );
+
+          heroAnimation();
+
+        }
+
+      });
+
     }
-    animateRing();
 
-    document.querySelectorAll('a, button, .tilt-card, img, .horizontal-card').forEach(el => {
-        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+});
+
+
+/* =========================================================
+   CURSOR
+========================================================= */
+
+const cursor =
+  document.querySelector(".cursor");
+
+const ring =
+  document.querySelector(".cursor-ring");
+
+window.addEventListener(
+  "mousemove",
+  e => {
+
+    gsap.to(cursor,{
+      x:e.clientX,
+      y:e.clientY,
+      duration:.1
     });
 
-    // ═══════════════════════════════════════════════
-    // PROGRESS BAR
-    // ═══════════════════════════════════════════════
-    const progressBar = document.getElementById('progressBar');
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const progress = (scrollTop / docHeight) * 100;
-        progressBar.style.width = progress + '%';
+    gsap.to(ring,{
+      x:e.clientX,
+      y:e.clientY,
+      duration:.35,
+      ease:"power3.out"
     });
 
-    // ═══════════════════════════════════════════════
-    // NAV HIDE ON SCROLL DOWN
-    // ═══════════════════════════════════════════════
-    const nav = document.getElementById('mainNav');
-    let lastScroll = 0;
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.scrollY;
-        if (currentScroll > lastScroll && currentScroll > 200) {
-            nav.classList.add('hidden');
-        } else {
-            nav.classList.remove('hidden');
-        }
-        lastScroll = currentScroll;
-    });
+  }
+);
 
-    // ═══════════════════════════════════════════════
-    // REVEAL ON SCROLL
-    // ═══════════════════════════════════════════════
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+document
+.querySelectorAll("a,.skill,.travel-card")
+.forEach(el=>{
 
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  el.addEventListener(
+    "mouseenter",
+    ()=>{
+      ring.classList.add("active");
+    }
+  );
 
-    // ═══════════════════════════════════════════════
-    // PARALLAX HERO BG TEXT
-    // ═══════════════════════════════════════════════
-    const heroBgText = document.getElementById('heroBgText');
-    window.addEventListener('scroll', () => {
-        const scrollY = window.scrollY;
-        if (scrollY < window.innerHeight) {
-            heroBgText.style.transform = `translateX(${-scrollY * 0.35}px)`;
-        }
-    });
+  el.addEventListener(
+    "mouseleave",
+    ()=>{
+      ring.classList.remove("active");
+    }
+  );
 
-    // ═══════════════════════════════════════════════
-    // TILT 3D SU CARD
-    // ═══════════════════════════════════════════════
-    document.querySelectorAll('[data-tilt]').forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = ((y - centerY) / centerY) * -10;
-            const rotateY = ((x - centerX) / centerX) * 10;
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-        });
-    });
+});
 
-    // ═══════════════════════════════════════════════
-    // HORIZONTAL SCROLL (Viaggi)
-    // ═══════════════════════════════════════════════
-    const horizontalSection = document.querySelector('.horizontal-scroll');
-    const horizontalTrack = document.getElementById('horizontalTrack');
 
-    window.addEventListener('scroll', () => {
-        const rect = horizontalSection.getBoundingClientRect();
-        const sectionTop = -rect.top;
-        const sectionHeight = horizontalSection.offsetHeight - window.innerHeight;
-        const progress = Math.max(0, Math.min(1, sectionTop / sectionHeight));
-        const trackWidth = horizontalTrack.scrollWidth - window.innerWidth;
-        horizontalTrack.style.transform = `translateX(${-progress * trackWidth}px)`;
-    });
+/* =========================================================
+   HERO
+========================================================= */
 
-    // ═══════════════════════════════════════════════
-    // SMOOTH SCROLL PER NAV LINKS
-    // ═══════════════════════════════════════════════
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-        link.addEventListener('click', (e) => {
-            const target = document.querySelector(link.getAttribute('href'));
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    });
+function heroAnimation(){
+
+  const tl =
+    gsap.timeline();
+
+  tl.from(
+    ".hero-small",
+    {
+      opacity:0,
+      y:30,
+      duration:.8
+    }
+  )
+
+  .from(
+    ".hero-title span",
+    {
+      yPercent:120,
+      rotate:8,
+      opacity:0,
+      stagger:.15,
+      duration:1.4,
+      ease:"power4.out"
+    },
+    "-=.4"
+  )
+
+  .from(
+    ".hero-description",
+    {
+      opacity:0,
+      y:30,
+      duration:1
+    },
+    "-=.7"
+  );
+
+}
+
+
+/* =========================================================
+   HERO PARALLAX
+========================================================= */
+
+gsap.to(
+  ".hero-title",
+  {
+    scale:1.25,
+    y:-130,
+    rotation:-3,
+
+    scrollTrigger:{
+      trigger:".hero",
+      start:"top top",
+      end:"bottom top",
+      scrub:1.5
+    }
+  }
+);
+
+gsap.to(
+  ".hero-glow",
+  {
+    scale:2,
+    opacity:0,
+
+    scrollTrigger:{
+      trigger:".hero",
+      start:"top top",
+      end:"bottom top",
+      scrub:1
+    }
+  }
+);
+
+
+/* =========================================================
+   INTRO
+========================================================= */
+
+gsap.from(
+  ".intro-heading",
+  {
+    x:-200,
+    opacity:0,
+    rotation:-4,
+
+    scrollTrigger:{
+      trigger:".intro",
+      start:"top 70%",
+      end:"center center",
+      scrub:1
+    }
+  }
+);
+
+
+gsap.to(
+  ".word1",
+  {
+    x:-400,
+    rotation:-25,
+
+    scrollTrigger:{
+      trigger:".intro",
+      start:"top bottom",
+      end:"bottom top",
+      scrub:1
+    }
+  }
+);
+
+
+gsap.to(
+  ".word2",
+  {
+    x:500,
+    rotation:20,
+
+    scrollTrigger:{
+      trigger:".intro",
+      start:"top bottom",
+      end:"bottom top",
+      scrub:1
+    }
+  }
+);
+
+
+gsap.from(
+  ".intro-copy p",
+  {
+    y:80,
+    opacity:0,
+    stagger:.2,
+
+    scrollTrigger:{
+      trigger:".intro-copy",
+      start:"top 80%"
+    }
+  }
+);
+
+
+/* =========================================================
+   PORTAL
+========================================================= */
+
+gsap.to(
+  ".portal-background",
+  {
+    scale:1.5,
+    rotation:8,
+
+    scrollTrigger:{
+      trigger:".portal",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:2
+    }
+  }
+);
+
+
+gsap.to(
+  ".moon",
+  {
+    x:-500,
+    y:250,
+    scale:.45,
+    rotation:180,
+
+    scrollTrigger:{
+      trigger:".portal",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:2
+    }
+  }
+);
+
+
+gsap.to(
+  ".forest",
+  {
+    scale:1.7,
+    y:150,
+
+    scrollTrigger:{
+      trigger:".portal",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:2
+    }
+  }
+);
+
+
+gsap.to(
+  ".portal-title h2",
+  {
+    scale:.35,
+    y:-200,
+    rotation:-8,
+
+    scrollTrigger:{
+      trigger:".portal",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:2
+    }
+  }
+);
+
+
+gsap.from(
+  ".portal-caption",
+  {
+    opacity:0,
+    x:-100,
+
+    scrollTrigger:{
+      trigger:".portal",
+      start:"top 50%",
+      end:"center center",
+      scrub:1
+    }
+  }
+);
+
+
+/* =========================================================
+   3D ORB
+========================================================= */
+
+gsap.to(
+  ".orb",
+  {
+    rotationX:720,
+    rotationY:1080,
+    rotationZ:360,
+    scale:1.35,
+
+    scrollTrigger:{
+      trigger:".orb-section",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:2
+    }
+  }
+);
+
+
+gsap.to(
+  ".orb-text",
+  {
+    scale:.4,
+    rotation:12,
+
+    scrollTrigger:{
+      trigger:".orb-section",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:1
+    }
+  }
+);
+
+
+/* =========================================================
+   HORIZONTAL TRAVEL
+========================================================= */
+
+const track =
+  document.querySelector(".travel-track");
+
+function horizontalTravel(){
+
+  const distance =
+    track.scrollWidth -
+    window.innerWidth;
+
+  gsap.to(
+    track,
+    {
+      x:-distance,
+
+      ease:"none",
+
+      scrollTrigger:{
+        trigger:".travel-track-wrap",
+        start:"top top",
+        end:()=>"+="+distance,
+        scrub:1,
+        pin:true,
+        anticipatePin:1,
+        invalidateOnRefresh:true
+      }
+
+    }
+  );
+
+}
+
+horizontalTravel();
+
+
+/* =========================================================
+   TRAVEL IMAGE PARALLAX
+========================================================= */
+
+gsap.utils.toArray(
+  ".travel-card img"
+).forEach(img=>{
+
+  gsap.to(
+    img,
+    {
+      scale:1,
+
+      scrollTrigger:{
+        trigger:img.closest(".travel-card"),
+        start:"left right",
+        end:"right left",
+        scrub:1
+      }
+    }
+  );
+
+});
+
+
+/* =========================================================
+   CINEMA
+========================================================= */
+
+gsap.to(
+  ".cinema-title",
+  {
+    scale:.35,
+    rotation:-8,
+
+    scrollTrigger:{
+      trigger:".cinema",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:1.5
+    }
+  }
+);
+
+
+gsap.to(
+  ".cinema-image.one",
+  {
+    x:-500,
+    y:400,
+    rotation:-35,
+    scale:.5,
+
+    scrollTrigger:{
+      trigger:".cinema",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:1.5
+    }
+  }
+);
+
+
+gsap.to(
+  ".cinema-image.two",
+  {
+    x:500,
+    y:-350,
+    rotation:35,
+    scale:.6,
+
+    scrollTrigger:{
+      trigger:".cinema",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:1.5
+    }
+  }
+);
+
+
+gsap.to(
+  ".cinema-image.three",
+  {
+    x:-250,
+    y:500,
+    rotation:-25,
+    scale:.4,
+
+    scrollTrigger:{
+      trigger:".cinema",
+      start:"top top",
+      end:"bottom bottom",
+      scrub:1.5
+    }
+  }
+);
+
+
+/* =========================================================
+   SKILLS
+========================================================= */
+
+gsap.from(
+  ".skill",
+  {
+    x:-150,
+    opacity:0,
+    stagger:.12,
+    duration:1,
+    ease:"power4.out",
+
+    scrollTrigger:{
+      trigger:".skills",
+      start:"top 70%"
+    }
+  }
+);
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+gsap.from(
+  ".timeline h2",
+  {
+    x:-400,
+    opacity:0,
+    rotation:-5,
+
+    scrollTrigger:{
+      trigger:".timeline",
+      start:"top 70%",
+      end:"center center",
+      scrub:1
+    }
+  }
+);
+
+
+gsap.from(
+  ".timeline-item",
+  {
+    y:150,
+    opacity:0,
+    stagger:.15,
+
+    scrollTrigger:{
+      trigger:".timeline-grid",
+      start:"top 80%"
+    }
+  }
+);
+
+
+/* =========================================================
+   FINAL
+========================================================= */
+
+gsap.from(
+  ".final-title span",
+  {
+    yPercent:150,
+    opacity:0,
+    rotation:7,
+    stagger:.15,
+
+    scrollTrigger:{
+      trigger:".final",
+      start:"top 70%"
+    }
+  }
+);
+
+
+/* =========================================================
+   THREE.JS PARTICLE UNIVERSE
+========================================================= */
+
+const canvas =
+  document.querySelector("#particles");
+
+const scene =
+  new THREE.Scene();
+
+const camera =
+  new THREE.PerspectiveCamera(
+    60,
+    window.innerWidth/window.innerHeight,
+    .1,
+    100
+  );
+
+camera.position.z = 5;
+
+const renderer =
+  new THREE.WebGLRenderer({
+    canvas,
+    alpha:true,
+    antialias:true
+  });
+
+renderer.setPixelRatio(
+  Math.min(window.devicePixelRatio,2)
+);
+
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
+
+
+/* PARTICLES */
+
+const geometry =
+  new THREE.BufferGeometry();
+
+const particleCount = 1800;
+
+const positions =
+  new Float32Array(
+    particleCount * 3
+  );
+
+for(
+  let i=0;
+  i<particleCount;
+  i++
+){
+
+  positions[i*3] =
+    (Math.random()-.5)*15;
+
+  positions[i*3+1] =
+    (Math.random()-.5)*9;
+
+  positions[i*3+2] =
+    (Math.random()-.5)*10;
+
+}
+
+geometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(
+    positions,
+    3
+  )
+);
+
+
+const material =
+  new THREE.PointsMaterial({
+    color:0xd9ff55,
+    size:.018,
+    transparent:true,
+    opacity:.9
+  });
+
+
+const particles =
+  new THREE.Points(
+    geometry,
+    material
+  );
+
+scene.add(particles);
+
+
+/* MOUSE */
+
+let mouseX=0;
+let mouseY=0;
+
+window.addEventListener(
+  "mousemove",
+  e=>{
+
+    mouseX =
+      (e.clientX /
+      window.innerWidth -
+      .5);
+
+    mouseY =
+      (e.clientY /
+      window.innerHeight -
+      .5);
+
+  }
+);
+
+
+/* RENDER */
+
+function animate(){
+
+  requestAnimationFrame(
+    animate
+  );
+
+  particles.rotation.y += .0005;
+  particles.rotation.x += .0002;
+
+  particles.position.x +=
+    (mouseX*.3 -
+    particles.position.x)
+    *.02;
+
+  particles.position.y +=
+    (-mouseY*.3 -
+    particles.position.y)
+    *.02;
+
+  camera.position.x +=
+    (mouseX*.3 -
+    camera.position.x)
+    *.01;
+
+  camera.position.y +=
+    (-mouseY*.3 -
+    camera.position.y)
+    *.01;
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+animate();
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener(
+  "resize",
+  ()=>{
+
+    camera.aspect =
+      window.innerWidth /
+      window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
+
+    ScrollTrigger.refresh();
+
+  }
+);
+
 </script>
 
 </body>
