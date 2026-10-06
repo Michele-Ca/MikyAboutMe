@@ -1,1 +1,704 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Michele — About Me</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background: #0A0A0A;
+        color: #FFFFFF;
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        cursor: none;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor-dot, .cursor-ring {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 9999;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        mix-blend-mode: difference;
+    }
+
+    .cursor-dot {
+        width: 8px;
+        height: 8px;
+        background: #FFFFFF;
+        transition: width 0.3s, height 0.3s, background 0.3s;
+    }
+
+    .cursor-ring {
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        transition: width 0.3s, height 0.3s, border-color 0.3s;
+    }
+
+    .cursor-hover .cursor-dot {
+        width: 0;
+        height: 0;
+    }
+
+    .cursor-hover .cursor-ring {
+        width: 80px;
+        height: 80px;
+        background: #FFFFFF;
+        border-color: #FFFFFF;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    .noise {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        pointer-events: none;
+        opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E");
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        background: #0EA5E9;
+        z-index: 200;
+        width: 0;
+        transition: width 0.1s linear;
+    }
+
+    /* ── NAV ── */
+    nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 24px 48px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 150;
+        mix-blend-mode: difference;
+    }
+
+    .logo {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 28px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        color: #FFFFFF;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 32px;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+    }
+
+    .nav-links a {
+        color: #FFFFFF;
+        text-decoration: none;
+        position: relative;
+        transition: opacity 0.3s;
+        opacity: 0.7;
+    }
+
+    .nav-links a:hover {
+        opacity: 1;
+    }
+
+    /* ── HERO ── */
+    .hero {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-bg-text {
+        position: absolute;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(200px, 40vw, 600px);
+        font-weight: 300;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.06);
+        letter-spacing: -0.05em;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 0;
+        user-select: none;
+    }
+
+    .hero-title {
+        font-family: 'Inter', sans-serif;
+        font-size: clamp(64px, 14vw, 220px);
+        font-weight: 800;
+        letter-spacing: -0.06em;
+        line-height: 0.9;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        background: linear-gradient(180deg, #FFFFFF 0%, #0EA5E9 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-title span {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(120%) rotate(8deg);
+        animation: heroLetter 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes heroLetter {
+        to {
+            opacity: 1;
+            transform: translateY(0) rotate(0);
+        }
+    }
+
+    .hero-subtitle {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(18px, 2vw, 26px);
+        font-style: italic;
+        font-weight: 400;
+        margin-top: 32px;
+        opacity: 0;
+        animation: fadeUp 1s 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        z-index: 2;
+        position: relative;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 0.7; transform: translateY(0); }
+    }
+
+    .scroll-hint {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        font-size: 11px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        opacity: 0.5;
+        z-index: 2;
+    }
+
+    .scroll-hint .line {
+        width: 1px;
+        height: 60px;
+        background: linear-gradient(to bottom, #0EA5E9, transparent);
+        animation: scrollLine 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollLine {
+        0% { transform: scaleY(0); transform-origin: top; }
+        50% { transform: scaleY(1); transform-origin: top; }
+        50.01% { transform-origin: bottom; }
+        100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ── SECTION LAYOUT ── */
+    section.chapter {
+        min-height: 100vh;
+        padding: 120px 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .chapter-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        max-width: 1400px;
+        width: 100%;
+        align-items: center;
+    }
+
+    .chapter.reversed .chapter-inner {
+        direction: rtl;
+    }
+
+    .chapter.reversed .chapter-inner > * {
+        direction: ltr;
+    }
+
+    .chapter-media {
+        position: relative;
+        aspect-ratio: 4/5;
+        border-radius: 24px;
+        overflow: hidden;
+        will-change: transform;
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .chapter-media img,
+    .chapter-media video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .chapter-media:hover img,
+    .chapter-media:hover video {
+        transform: scale(1.06);
+    }
+
+    .chapter-media::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 60%, rgba(10, 10, 10, 0.6) 100%);
+        pointer-events: none;
+    }
+
+    .chapter-number {
+        position: absolute;
+        top: -20px;
+        left: 24px;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 120px;
+        font-weight: 300;
+        font-style: italic;
+        color: #0EA5E9;
+        opacity: 0.3;
+        z-index: 3;
+        line-height: 1;
+    }
+
+    .chapter-content {
+        max-width: 560px;
+    }
+
+    .chapter-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: #0EA5E9;
+        margin-bottom: 24px;
+    }
+
+    .chapter-label::before {
+        content: "";
+        width: 40px;
+        height: 1px;
+        background: #0EA5E9;
+    }
+
+    .chapter-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(48px, 6vw, 88px);
+        font-weight: 400;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin-bottom: 32px;
+    }
+
+    .chapter-title em {
+        font-style: italic;
+        color: #0EA5E9;
+    }
+
+    .chapter-text {
+        font-size: 17px;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.65);
+        margin-bottom: 24px;
+    }
+
+    /* ── REVEAL ANIMATIONS ── */
+    .reveal {
+        opacity: 0;
+        transform: translateY(60px);
+        transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.15s; }
+    .reveal-delay-2 { transition-delay: 0.3s; }
+    .reveal-delay-3 { transition-delay: 0.45s; }
+
+    /* ── MARQUEE ── */
+    .marquee {
+        padding: 80px 0;
+        overflow: hidden;
+        white-space: nowrap;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .marquee-track {
+        display: inline-flex;
+        gap: 60px;
+        animation: marquee 30s linear infinite;
+    }
+
+    .marquee-track span {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(40px, 6vw, 88px);
+        font-weight: 300;
+        font-style: italic;
+        letter-spacing: -0.02em;
+        color: rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 60px;
+    }
+
+    .marquee-track span::after {
+        content: "✦";
+        color: #0EA5E9;
+        font-style: normal;
+        font-size: 0.6em;
+    }
+
+    @keyframes marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+        padding: 120px 48px 60px;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        position: relative;
+    }
+
+    .footer-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(48px, 8vw, 120px);
+        font-weight: 300;
+        font-style: italic;
+        letter-spacing: -0.03em;
+        margin-bottom: 40px;
+        line-height: 1;
+    }
+
+    .footer-title em {
+        color: #0EA5E9;
+    }
+
+    .footer-links {
+        display: flex;
+        gap: 32px;
+        justify-content: center;
+        margin-top: 40px;
+        font-size: 13px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
+
+    .footer-links a {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+        color: #0EA5E9;
+    }
+
+    .footer-copy {
+        margin-top: 60px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.3);
+        letter-spacing: 0.1em;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+        nav { padding: 20px 24px; }
+        .nav-links { display: none; }
+        section.chapter { padding: 80px 24px; }
+        .chapter-inner { grid-template-columns: 1fr; gap: 48px; }
+        .chapter.reversed .chapter-inner { direction: ltr; }
+        .chapter-number { font-size: 80px; }
+        footer { padding: 80px 24px 40px; }
+    }
+
+    /* Disable custom cursor on touch devices */
+    @media (hover: none) {
+        body { cursor: auto; }
+        .cursor-dot, .cursor-ring { display: none; }
+    }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor-dot"></div>
+<div class="cursor-ring"></div>
+
+<!-- NOISE + PROGRESS -->
+<div class="noise"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- NAV -->
+<nav>
+    <div class="logo">Michele</div>
+    <div class="nav-links">
+        <a href="#viaggi">Viaggi</a>
+        <a href="#ghibli">Ghibli</a>
+        <a href="#creativita">Creatività</a>
+        <a href="#contatti">Contatti</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-bg-text">Wanderer</div>
+    <h1 class="hero-title" id="heroTitle"></h1>
+    <p class="hero-subtitle">Viaggiatore, sognatore, creatore di storie</p>
+    <div class="scroll-hint">
+        <span>Scorri</span>
+        <div class="line"></div>
+    </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+    <div class="marquee-track">
+        <span>Viaggi<span></span></span>
+        <span>Studio Ghibli</span>
+        <span>Creatività</span>
+        <span>Storytelling</span>
+        <span>Viaggi</span>
+        <span>Studio Ghibli</span>
+        <span>Creatività</span>
+        <span>Storytelling</span>
+    </div>
+</div>
+
+<!-- CHAPTER 01 — VIAGGI -->
+<section class="chapter" id="viaggi">
+    <div class="chapter-inner">
+        <div class="chapter-media tilt-card reveal" data-tilt>
+            <div class="chapter-number">01</div>
+            <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=80" alt="Viaggi" />
+        </div>
+        <div class="chapter-content">
+            <div class="chapter-label reveal">Capitolo 01</div>
+            <h2 class="chapter-title reveal reveal-delay-1">Il mondo <em>come casa</em></h2>
+            <p class="chapter-text reveal reveal-delay-2">
+                Ogni viaggio è una storia che aspetta di essere raccontata. Dalle strade di Copenhagen ai sentieri nascosti della mia terra, colleziono momenti, non cose. Ogni destinazione mi ha insegnato qualcosa di nuovo sul mondo e su me stesso.
+            </p>
+            <p class="chapter-text reveal reveal-delay-3">
+                Credo che viaggiare sia il modo più onesto di conoscersi: fuori dalla zona di comfort, ogni città diventa una lezione, ogni incontro una pagina nuova.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- CHAPTER 02 — GHIBLI -->
+<section class="chapter reversed" id="ghibli">
+    <div class="chapter-inner">
+        <div class="chapter-media tilt-card reveal" data-tilt>
+            <div class="chapter-number">02</div>
+            <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1200&q=80" alt="Ghibli" />
+        </div>
+        <div class="chapter-content">
+            <div class="chapter-label reveal">Capitolo 02</div>
+            <h2 class="chapter-title reveal reveal-delay-1">La <em>città incantata</em></h2>
+            <p class="chapter-text reveal reveal-delay-2">
+                Il mio immaginario è popolato da spiriti della foresta, città incantate e macchine volanti. Miyazaki mi ha insegnato che la magia è ovunque, basta saper guardare.
+            </p>
+            <p class="chapter-text reveal reveal-delay-3">
+                La mia creatività nasce da lì: da un mondo dove tutto è possibile, dove un treno può camminare sull'acqua e un'anima può brillare di luce propria.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- CHAPTER 03 — CREATIVITÀ -->
+<section class="chapter" id="creativita">
+    <div class="chapter-inner">
+        <div class="chapter-media tilt-card reveal" data-tilt>
+            <div class="chapter-number">03</div>
+            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&q=80" alt="Creatività" />
+        </div>
+        <div class="chapter-content">
+            <div class="chapter-label reveal">Capitolo 03</div>
+            <h2 class="chapter-title reveal reveal-delay-1">Tradurre <em>emozioni</em></h2>
+            <p class="chapter-text reveal reveal-delay-2">
+                Traduco emozioni in codice, pixel e parole. Progetto esperienze digitali che spero lascino un segno, come un fotogramma di un film che ti rimane dentro.
+            </p>
+            <p class="chapter-text reveal reveal-delay-3">
+                Ogni progetto è un viaggio: si parte da un'idea, si attraversano incertezze, e alla fine si arriva in un posto che non esisteva prima.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contatti">
+    <h2 class="footer-title reveal">Let's <em>connect</em></h2>
+    <p class="chapter-text reveal reveal-delay-1" style="max-width: 500px; margin: 0 auto;">
+        Se vuoi parlare di viaggi, Ghibli, design o semplicemente di storie — scrivimi.
+    </p>
+    <div class="footer-links reveal reveal-delay-2">
+        <a href="mailto:ciao@esempio.com">Email</a>
+        <a href="https://instagram.com" target="_blank">Instagram</a>
+        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+    </div>
+    <div class="footer-copy">© 2026 Michele — Fatto con cura</div>
+</footer>
+
+<script>
+    // ────────────────────────────────────────────────
+    // HERO TITLE — LETTERE ANIMATE
+    // ────────────────────────────────────────────────
+    const heroTitle = document.getElementById('heroTitle')
+    const name = 'MICHELE'
+    name.split('').forEach((letter, i) => {
+        const span = document.createElement('span')
+        span.textContent = letter
+        span.style.animationDelay = (i * 0.08) + 's'
+        heroTitle.appendChild(span)
+    })
+
+    // ────────────────────────────────────────────────
+    // CUSTOM CURSOR
+    // ────────────────────────────────────────────────
+    const dot = document.querySelector('.cursor-dot')
+    const ring = document.querySelector('.cursor-ring')
+    let mouseX = 0, mouseY = 0
+    let ringX = 0, ringY = 0
+
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX
+        mouseY = e.clientY
+        dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`
+    })
+
+    function animateRing() {
+        ringX += (mouseX - ringX) * 0.15
+        ringY += (mouseY - ringY) * 0.15
+        ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`
+        requestAnimationFrame(animateRing)
+    }
+    animateRing()
+
+    // Hover effect su elementi interattivi
+    document.querySelectorAll('a, button, .tilt-card, img').forEach(el => {
+        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'))
+        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'))
+    })
+
+    // ────────────────────────────────────────────────
+    // PROGRESS BAR
+    // ────────────────────────────────────────────────
+    const progressBar = document.getElementById('progressBar')
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight
+        const progress = (scrollTop / docHeight) * 100
+        progressBar.style.width = progress + '%'
+    })
+
+    // ────────────────────────────────────────────────
+    // REVEAL ON SCROLL
+    // ────────────────────────────────────────────────
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible')
+            }
+        })
+    }, { threshold: 0.15, rootMargin: '0px 0px -100px 0px' })
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+
+    // ────────────────────────────────────────────────
+    // PARALLAX HERO BG TEXT
+    // ────────────────────────────────────────────────
+    const heroBgText = document.querySelector('.hero-bg-text')
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY
+        if (scrollY < window.innerHeight) {
+            heroBgText.style.transform = `translateX(${-scrollY * 0.3}px)`
+        }
+    })
+
+    // ────────────────────────────────────────────────
+    // TILT 3D SU CARD
+    // ────────────────────────────────────────────────
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect()
+            const x = e.clientX - rect.left
+            const y = e.clientY - rect.top
+            const centerX = rect.width / 2
+            const centerY = rect.height / 2
+            const rotateX = ((y - centerY) / centerY) * -8
+            const rotateY = ((x - centerX) / centerX) * 8
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`
+        })
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)'
+        })
+    })
+
+    // ────────────────────────────────────────────────
+    // SMOOTH SCROLL PER NAV LINKS
+    // ────────────────────────────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const target = document.querySelector(link.getAttribute('href'))
+            if (target) {
+                e.preventDefault()
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+        })
+    })
+</script>
+
+</body>
+</html>
