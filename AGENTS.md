@@ -1,1 +1,0 @@
-Always reply with one emoji
