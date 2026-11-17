@@ -1,1 +1,0 @@
-# Always reply in a single line using only emojis!
