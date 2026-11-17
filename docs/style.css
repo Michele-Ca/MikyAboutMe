@@ -1,1 +1,91 @@
+/* Colour variables */
+:root {
+  --colour-bg: #f7f7f9;
+  --colour-text: #1f1f23;
+  --colour-accent: #3b6cff;
+  --colour-card: #ffffff;
+  --spacing: 1rem;
+}
 
+/* Reset and base */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--colour-bg);
+  color: var(--colour-text);
+}
+
+/* Navigation */
+.site-nav {
+  display: flex;
+  gap: var(--spacing);
+  padding: var(--spacing);
+  background: var(--colour-card);
+}
+
+.site-nav__link {
+  color: var(--colour-accent);
+  text-decoration: none;
+}
+
+/* Page layout */
+.page {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: var(--spacing);
+}
+
+.page__title {
+  margin-top: 0;
+}
+
+/* Project cards */
+.project-list {
+  display: grid;
+  gap: var(--spacing);
+}
+
+.project-card {
+  background: var(--colour-card);
+  padding: var(--spacing);
+  border-radius: 0.5rem;
+}
+
+.project-card__title {
+  margin-top: 0;
+}
+
+.project-card__description {
+  margin-bottom: 0;
+}
+
+/* Skills */
+.skill-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing);
+}
+
+.skill-list li {
+  background: var(--colour-card);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Footer */
+.site-footer {
+  padding: var(--spacing);
+  text-align: center;
+}
+
+.site-footer__text {
+  margin: 0;
+  color: var(--colour-text);
+}
