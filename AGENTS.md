@@ -25,6 +25,3 @@ End your reply with a short list headed "Files changed".
 
 ## Preview
 - Open `docs/index.html` directly in a browser (no dev server).
-
-## Added after mistakes
-- (add a rule here when the agent makes a mistake)
